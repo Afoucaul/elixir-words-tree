@@ -9,7 +9,8 @@ defmodule WordsTree do
     GenServer.cast(server, {:insert, word})
   end
 
-  def lookup(_server, _prefix) do
+  def search(server, prefix) do
+    GenServer.call(server, {:search, prefix})
   end
 end
 
@@ -58,4 +59,35 @@ defmodule WordsTree.Server do
   def insert([tree | rest], word) do
     [tree | insert(rest, word)]
   end
+
+  def search(roots, prefix) do
+    [search_root(roots, prefix)]
+    |> build_words(prefix)
+  end
+
+  def search_root([], _prefix), do: nil
+
+  def search_root([{char, _children, _is_a_word}=root | _rest], <<char>>) do
+    root
+  end
+
+  def search_root([{char, children, _is_a_word} | _rest], <<char>> <> prefix) do
+    search_root(children, prefix)
+  end
+
+  def search_root([{_char, _children, _is_a_word} | rest], prefix) do
+    search_root(rest, prefix)
+  end
+
+  def build_words(root, prefix \\ "")
+
+  def build_words([{char, children, is_a_word} | rest], prefix) do
+    if is_a_word do
+      [prefix <> <<char>> | build_words(rest, prefix)]
+    else
+      build_words(rest, prefix)
+    end ++ build_words(children, prefix <> <<char>>)
+  end
+
+  def build_words([], _prefix), do: []
 end
