@@ -1,27 +1,30 @@
 defmodule WordsTree do
-  use GenServer
+  alias GenServer
 
-  def start_link(opts) do
+  def start_link(opts \\ []) do
     GenServer.start_link(WordsTree.Server, :ok, opts)
   end
 
-  def insert(tree, word) do
+  def insert(server, word) do
+    GenServer.cast(server, {:insert, word})
   end
 
-  def lookup(tree, prefix) do
+  def lookup(_server, _prefix) do
   end
 end
 
 
 defmodule WordsTree.Server do
   def init(:ok) do
-    {:ok, {}}
-  end
-
-  def handle_call({:insert, word}, _from, tree) do
+    {:ok, [{}]}
   end
 
   def handle_call(_), do: :not_implemented
+
+  def handle_cast({:insert, word}, _from, tree) do
+    {:noreply, insert(tree, word)}
+  end
+
   def handle_cast(_), do: :not_implemented
 
   def insert(roots, word)
