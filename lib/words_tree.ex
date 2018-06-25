@@ -1,4 +1,13 @@
 defmodule WordsTree do
+  @moduledoc ~S"""
+  WordsTree
+
+  author: Armand Foucault
+
+  Tree of words working on a GenServer.
+  The API can handle word insertion, and search by prefix.
+  """
+
   alias GenServer
 
   def create(opts \\ []) do
@@ -8,10 +17,16 @@ defmodule WordsTree do
     end
   end
 
+  @doc ~S"""
+  Insert a word into the tree.
+  """
   def insert(server, word) do
     GenServer.cast(server, {:insert, word})
   end
 
+  @doc ~S"""
+  Get a list of the words in the tree that start with the given prefix.
+  """
   def search(server, prefix) do
     GenServer.call(server, {:search, prefix})
   end
