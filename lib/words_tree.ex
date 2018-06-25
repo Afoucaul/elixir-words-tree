@@ -1,8 +1,11 @@
 defmodule WordsTree do
   alias GenServer
 
-  def start_link(opts \\ []) do
-    GenServer.start_link(WordsTree.Server, :ok, opts)
+  def create(opts \\ []) do
+    case WordsTree.Server.start_link(opts) do
+      {:ok, pid} -> pid
+      _ -> :error
+    end
   end
 
   def insert(server, word) do
@@ -12,17 +15,36 @@ defmodule WordsTree do
   def search(server, prefix) do
     GenServer.call(server, {:search, prefix})
   end
+
+  def get_tree(server) do
+    GenServer.call(server, {:get})
+  end
 end
 
 
 defmodule WordsTree.Server do
+  use GenServer
+
+
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, :ok, opts)
+  end
+
   def init(:ok) do
     {:ok, [{}]}
   end
 
+  def handle_call({:get}, _from, tree) do
+    {:reply, tree, tree}
+  end
+
+  def handle_call({:search, prefix}, _from, tree) do
+    {:reply, search(tree, prefix), tree}
+  end
+
   def handle_call(_), do: :not_implemented
 
-  def handle_cast({:insert, word}, _from, tree) do
+  def handle_cast({:insert, word}, tree) do
     {:noreply, insert(tree, word)}
   end
 
