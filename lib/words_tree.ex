@@ -24,6 +24,10 @@ defmodule WordsTree do
     GenServer.cast(server, {:insert, word})
   end
 
+  def blocking_insert(server, words) do
+    GenServer.call(server, {:insert, words})
+  end
+
   @doc ~S"""
   Get a list of the words in the tree that start with the given prefix.
   """
@@ -46,7 +50,7 @@ defmodule WordsTree.Server do
   end
 
   def init(:ok) do
-    {:ok, [{}]}
+    {:ok, []}
   end
 
   def handle_call({:get}, _from, tree) do
@@ -55,6 +59,10 @@ defmodule WordsTree.Server do
 
   def handle_call({:search, prefix}, _from, tree) do
     {:reply, search(tree, prefix), tree}
+  end
+
+  def handle_call({:insert, words}, _from, tree) do
+    {:reply, :ok, Enum.reduce(words, tree, fn(word, acc) -> insert(acc, word) end)}
   end
 
   def handle_call(_), do: :not_implemented
