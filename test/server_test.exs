@@ -62,4 +62,19 @@ defmodule WordsTreeTest do
     |> Server.search("a")
     ) == ["a", "ab", "abc"]
   end
+
+  test "search words by prefix in a bigger tree" do
+    words = [
+      "a",
+      "ab",
+      "abcd",
+      "b",
+      "bc",
+      "bcd",
+      "bce"
+    ]
+    tree = Enum.reduce(words, [], fn w, acc -> Server.insert(acc, w) end)
+    assert Server.search(tree, "a") == ["a", "ab", "abcd"]
+    assert Server.search(tree, "ab") == ["ab", "abcd"]
+  end
 end
