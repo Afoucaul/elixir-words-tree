@@ -62,7 +62,7 @@ defmodule WordsTree.Server do
 
   def search(roots, prefix) do
     [search_root(roots, prefix)]
-    |> build_words(prefix)
+    |> build_words(String.slice(prefix, 0..-2))
   end
 
   def search_root([], _prefix), do: nil
